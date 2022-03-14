@@ -1,0 +1,1 @@
+{"version":3,"sources":["styles.css"],"names":[],"mappings":"AAAA,KACE,sBACF,CAOA,uCACE,YAAa,CACb,WACF","file":"src.fa56a69a.css","sourceRoot":"..","sourcesContent":["body {\n  font-family: sans-serif;\n}\n\n.send-address-input {\n  padding: 10px;\n  width: 450px;\n}\n\n.send-amount-input {\n  padding: 10px;\n  width: 450px;\n}\n"]}
