@@ -1,1 +1,0 @@
-{"version":3,"sources":["src/styles.css"],"names":[],"mappings":"AAAA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA","file":"src.a2b27638.css","sourceRoot":"..","sourcesContent":["body {\n  font-family: sans-serif;\n}\n\n.send-address-input {\n  padding: 10px;\n  width: 450px;\n}\n\n.send-amount-input {\n  padding: 10px;\n  width: 450px;\n}\n"]}
