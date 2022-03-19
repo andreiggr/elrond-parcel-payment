@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Parcel Sandbox</title>
+    <title>Elrond/Maiar Simple Transactions</title>
     <meta charset="UTF-8" />
   </head>
 
@@ -14,7 +14,7 @@
         id="send-address-input"
         class="send-address-input"
         placeholder="address"
-        value="erd14ntyrv83dw72u9jmkl45nww4a0qeyjxlf0dsy4cvkwjetljkrneqzj27d7"
+        value="erd10ya7tkgjusj6cdhss90awc4lhvv63h6clazsv7w5ska677m2kmsqzgqqzd"
       />
       <p>Amount in EGLD:</p>
       <input
@@ -25,7 +25,12 @@
         value="0.0001"
       />
     </div>
-    <button id="button-send">Send web</button>
+    <button id="button-send-web">Send web</button>
+    <button id="button-send-qr">Send with QR</button>
+
+    <div>
+      <canvas id="qrcode"></canvas>
+    </div>
 
     <div id="transaction-id-container" class="transaction-id-container"></div>
 

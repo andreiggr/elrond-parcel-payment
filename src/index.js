@@ -1,20 +1,20 @@
 import "./styles.css";
 import {
   Account,
-  AccountOnNetwork,
   Address,
   ExtensionProvider,
   SignableMessage,
-  ProxyProvider,
-  NetworkConfig,
   Transaction,
   TransactionPayload,
   GasLimit,
   Balance,
   ChainID,
-  TransactionHash,
-  TransactionWatcher,
+  WalletConnectProvider,
+  ProxyProvider,
 } from "@elrondnetwork/erdjs";
+import QRCode from "qrcode";
+
+var qrcodeCanvas = document.getElementById("qrcode");
 
 //login using erdjs
 async function handleLogin() {
@@ -31,7 +31,14 @@ async function handleLogin() {
   console.log(signed);
 }
 
-async function handleSend() {
+function generatePaymentQR(qrcodeCanvas, payUri) {
+  QRCode.toCanvas(qrcodeCanvas, payUri, function(error) {
+    if (error) console.error(error);
+    console.log("qrcode generated!");
+  });
+}
+
+async function handleSendWeb() {
   //get address from input
   const destinationAddress = document.getElementById("send-address-input")
     .value;
@@ -39,7 +46,6 @@ async function handleSend() {
 
   //get amount in EGLD from input
   const amountToSend = document.getElementById("send-amount-input").value;
-  // console.log("amout", amountToSend);
 
   let provider = ExtensionProvider.getInstance();
   await provider.init();
@@ -48,19 +54,85 @@ async function handleSend() {
   //sync user Account
   let senderAccount = new Account(account);
 
+  //load tx data
   let tx = new Transaction({
     data: new TransactionPayload("T3"),
     gasLimit: new GasLimit(70000),
     receiver: new Address(destinationAddress),
-    value: Balance.egld(0.0001),
-    // T for testnet, D for devnet
+    value: Balance.egld(amountToSend),
+    // T for testnet, D for devnet, 1 for mainnet
     chainID: new ChainID("D"),
   });
 
+  //sent tx
   tx.setNonce(senderAccount.nonce);
   const txSent = await tx.send(provider);
 
+  //get transaction ID and append it in the tx div
   appendTxText(await txSent.getHash().toString());
+}
+
+async function handleSendQR() {
+  //get address from input
+  const destinationAddress = document.getElementById("send-address-input")
+    .value;
+
+  //get amount in EGLD from input
+  const amountToSend = document.getElementById("send-amount-input").value;
+
+  //sync user Account
+  // let senderAccount = new Account(account);
+
+  //load tx data
+  let tx = new Transaction({
+    data: new TransactionPayload("T3"),
+    gasLimit: new GasLimit(70000),
+    receiver: new Address(destinationAddress),
+    value: Balance.egld(amountToSend),
+    // T for testnet, D for devnet, 1 for mainnet
+    chainID: new ChainID("D"),
+  });
+
+  //https://devnet-gateway.elrond.com for dev net
+  //https://gateway.elrond.com for main net
+
+  const proxy = new ProxyProvider("https://devnet-gateway.elrond.com", 60000);
+
+  let walletConnect = new WalletConnectProvider(
+    proxy,
+    "https://bridge.walletconnect.org",
+    {
+      onClientLogin: async () => {
+        walletConnect.getAddress().then((address) => {
+          console.log("connected to:", address);
+        });
+
+        let account = new Account(
+          new Address(await walletConnect.getAddress())
+        );
+        await account.sync(proxy);
+        tx.setNonce(account.nonce);
+        walletConnect
+          .sendTransaction(tx)
+          .then((hash) => appendTxText(hash.getHash().toString()))
+          .catch((error) => console.log("oops error", error));
+        // console.log(result.hash.toString());
+      },
+      onClientLogout: () => {
+        console.log("logout");
+      },
+    }
+  );
+
+  if (!walletConnect.isInitialized()) {
+    walletConnect.init();
+  }
+  walletConnect.login().then((walletConnectUri) => {
+    if (walletConnectUri) {
+      console.log("wcuri", walletConnectUri);
+      generatePaymentQR(qrcodeCanvas, walletConnectUri);
+    }
+  });
 }
 
 function appendTxText(text) {
@@ -71,4 +143,5 @@ function appendTxText(text) {
 
 document.getElementById("button-login").onclick = handleLogin;
 
-document.getElementById("button-send").onclick = handleSend;
+document.getElementById("button-send-web").onclick = handleSendWeb;
+document.getElementById("button-send-qr").onclick = handleSendQR;
