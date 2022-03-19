@@ -11,7 +11,9 @@ import {
   TransactionPayload,
   GasLimit,
   Balance,
-  ChainID
+  ChainID,
+  TransactionHash,
+  TransactionWatcher,
 } from "@elrondnetwork/erdjs";
 
 //login using erdjs
@@ -19,7 +21,7 @@ async function handleLogin() {
   let provider = ExtensionProvider.getInstance();
   await provider.init();
   let account = await provider.login();
- 
+
   let message = new SignableMessage({
     message: Buffer.from("TestMe", "utf8"),
     address: new Address(account),
@@ -47,17 +49,24 @@ async function handleSend() {
   let senderAccount = new Account(account);
 
   let tx = new Transaction({
-    data: new TransactionPayload("First trans"),
+    data: new TransactionPayload("T3"),
     gasLimit: new GasLimit(70000),
-    receiver: new Address(
-      "erd14ntyrv83dw72u9jmkl45nww4a0qeyjxlf0dsy4cvkwjetljkrneqzj27d7"
-    ),
+    receiver: new Address(destinationAddress),
     value: Balance.egld(0.0001),
-    chainID: new ChainID("1")
+    // T for testnet, D for devnet
+    chainID: new ChainID("D"),
   });
 
   tx.setNonce(senderAccount.nonce);
-  await tx.send(provider);
+  const txSent = await tx.send(provider);
+
+  appendTxText(await txSent.getHash().toString());
+}
+
+function appendTxText(text) {
+  var element = document.getElementById("transaction-id-container");
+  var text = document.createTextNode(text);
+  element.appendChild(text);
 }
 
 document.getElementById("button-login").onclick = handleLogin;
