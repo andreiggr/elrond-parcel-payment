@@ -22,3 +22,7 @@ body {
   border: 2px solid #1e8339;
   color: black;
 }
+
+.selector-container-payment {
+  margin: 20px 0;
+}
