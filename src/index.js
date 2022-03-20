@@ -100,7 +100,7 @@ async function handleSendQR() {
 
   //load tx data
   let tx = new Transaction({
-    data: new TransactionPayload("T3"),
+    data: new TransactionPayload("Transaction note"),
     gasLimit: new GasLimit(70000),
     receiver: new Address(destinationAddress),
     value: Balance.egld(amountToSend),
