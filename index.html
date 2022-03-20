@@ -6,27 +6,28 @@
   </head>
 
   <body>
-    <button id="button-login">ErdJS Login</button>
-
     <div>
       <p>Send to elrond address from web:</p>
       <input
         id="send-address-input"
         class="input-base"
-        placeholder="address"
-        value="erd10ya7tkgjusj6cdhss90awc4lhvv63h6clazsv7w5ska677m2kmsqzgqqzd"
+        placeholder="Maiar address"
       />
       <p>Amount in EGLD:</p>
       <input
         type="number"
         id="send-amount-input"
         class="input-base"
-        placeholder="amount"
-        value="0.0001"
+        placeholder="EGLD amount.."
       />
     </div>
-    <button id="button-send-web">Send web</button>
-    <button id="button-send-qr">Send with QR</button>
+    <div class="selector-container-payment">
+      <select id="select-payment-type" class="select-payment-type">
+        <option value="web">Web</option>
+        <option value="maiar">Maiar app</option>
+      </select>
+      <button id="button-confirm-payment">Confirm payment details</button>
+    </div>
 
     <div>
       <canvas id="qrcode"></canvas>

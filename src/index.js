@@ -13,15 +13,13 @@ import {
   ProxyProvider,
 } from "@elrondnetwork/erdjs";
 import QRCode from "qrcode";
-import { proxy } from "./config";
+import { bridge, proxy } from "./config";
 import { checkAddressValidity, checkAmountValidity } from "./util";
 
 var qrcodeCanvas = document.getElementById("qrcode");
 
 //get address from input
 var destinationAddress = document.getElementById("send-address-input").value;
-// console.log("dest", destinationAddress);
-
 //get amount in EGLD from input
 var amountToSend = document.getElementById("send-amount-input").value;
 
@@ -47,7 +45,7 @@ var inputElAmount = document.getElementById("send-amount-input");
 
 inputElAmount.oninput = async (e) => {
   var amount = e.target.value;
-  validAmount = checkAmountValidity(amount);
+  const validAmount = await checkAmountValidity(amount);
 
   if (validAmount) {
     console.log("it's a valid amount", amount);
@@ -60,21 +58,6 @@ inputElAmount.oninput = async (e) => {
   }
 };
 
-//login using erdjs
-async function handleLogin() {
-  let provider = ExtensionProvider.getInstance();
-  await provider.init();
-  let account = await provider.login();
-
-  let message = new SignableMessage({
-    message: Buffer.from("TestMe", "utf8"),
-    address: new Address(account),
-  });
-
-  let signed = await provider.signMessage(message);
-  console.log(signed);
-}
-
 function generatePaymentQR(qrcodeCanvas, payUri) {
   QRCode.toCanvas(qrcodeCanvas, payUri, function(error) {
     if (error) console.error(error);
@@ -83,6 +66,9 @@ function generatePaymentQR(qrcodeCanvas, payUri) {
 }
 
 async function handleSendWeb() {
+  var destinationAddress = document.getElementById("send-address-input").value;
+  var amountToSend = document.getElementById("send-amount-input").value;
+
   let provider = ExtensionProvider.getInstance();
   await provider.init();
   let account = await provider.login();
@@ -109,8 +95,8 @@ async function handleSendWeb() {
 }
 
 async function handleSendQR() {
-  //sync user Account
-  // let senderAccount = new Account(account);
+  var destinationAddress = document.getElementById("send-address-input").value;
+  var amountToSend = document.getElementById("send-amount-input").value;
 
   //load tx data
   let tx = new Transaction({
@@ -122,31 +108,26 @@ async function handleSendQR() {
     chainID: new ChainID("D"),
   });
 
-  let walletConnect = new WalletConnectProvider(
-    proxy,
-    "https://bridge.walletconnect.org",
-    {
-      onClientLogin: async () => {
-        walletConnect.getAddress().then((address) => {
-          console.log("connected to:", address);
-        });
+  let walletConnect = new WalletConnectProvider(proxy, bridge, {
+    onClientLogin: async () => {
+      walletConnect.getAddress().then((address) => {
+        console.log("connected to:", address);
+      });
 
-        let account = new Account(
-          new Address(await walletConnect.getAddress())
-        );
-        await account.sync(proxy);
-        tx.setNonce(account.nonce);
-        walletConnect
-          .sendTransaction(tx)
-          .then((hash) => appendTxText(hash.getHash().toString()))
-          .catch((error) => console.log("oops error", error));
-        // console.log(result.hash.toString());
-      },
-      onClientLogout: () => {
-        console.log("logout");
-      },
-    }
-  );
+      let account = new Account(new Address(await walletConnect.getAddress()));
+      await account.sync(proxy);
+      tx.setNonce(account.nonce);
+
+      walletConnect
+        .sendTransaction(tx)
+        .then((hash) => appendTxText(hash.getHash().toString()))
+        .catch((error) => console.log("oops error", error));
+      // console.log(result.hash.toString());
+    },
+    onClientLogout: () => {
+      console.log("logout");
+    },
+  });
 
   //initialize walletconnect
   if (!walletConnect.isInitialized()) {
@@ -163,11 +144,29 @@ async function handleSendQR() {
 
 function appendTxText(text) {
   var element = document.getElementById("transaction-id-container");
-  var text = document.createTextNode(text);
-  element.appendChild(text);
+  var textEl = document.createTextNode(`Transaction ID: ${text}`);
+  element.appendChild(textEl);
 }
 
-document.getElementById("button-login").onclick = handleLogin;
+function handleConfirmPayment() {
+  const type = document.getElementById("select-payment-type").value;
 
-document.getElementById("button-send-web").onclick = handleSendWeb;
-document.getElementById("button-send-qr").onclick = handleSendQR;
+  var address = document.getElementById("send-address-input").value;
+  var amount = document.getElementById("send-amount-input").value;
+
+  const validAddress = checkAddressValidity(address);
+  const validAmount = checkAmountValidity(amount);
+
+  if (validAmount && validAddress) {
+    if (type === "web") {
+      handleSendWeb();
+    }
+    if (type === "maiar") {
+      handleSendQR();
+    }
+  } else console.log("something is not right");
+}
+
+document.getElementById(
+  "button-confirm-payment"
+).onclick = handleConfirmPayment;
