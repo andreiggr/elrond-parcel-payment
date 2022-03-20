@@ -2,12 +2,23 @@ body {
   font-family: sans-serif;
 }
 
-.send-address-input {
+.input-base {
   padding: 10px;
-  width: 450px;
+  width: 490px;
+  border-radius: 5px;
+  font-size: 15px;
 }
 
-.send-amount-input {
-  padding: 10px;
-  width: 450px;
+.input-base:focus {
+  border: black;
+}
+
+.invalid-input {
+  border: 2px solid red;
+  color: rgb(100, 3, 3);
+}
+
+.valid-input {
+  border: 2px solid #1e8339;
+  color: black;
 }

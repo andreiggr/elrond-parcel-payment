@@ -1,33 +1,38 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Parcel Sandbox</title>
+    <title>Elrond/Maiar Simple Transactions</title>
     <meta charset="UTF-8" />
   </head>
 
   <body>
     <button id="button-login">ErdJS Login</button>
 
-    <!-- <button id="btn-login">Moralis Login</button> -->
-
     <div>
-      <p>Send to elrond address:</p>
+      <p>Send to elrond address from web:</p>
       <input
         id="send-address-input"
-        class="send-address-input"
+        class="input-base"
         placeholder="address"
-        value="erd14ntyrv83dw72u9jmkl45nww4a0qeyjxlf0dsy4cvkwjetljkrneqzj27d7"
+        value="erd10ya7tkgjusj6cdhss90awc4lhvv63h6clazsv7w5ska677m2kmsqzgqqzd"
       />
       <p>Amount in EGLD:</p>
       <input
         type="number"
         id="send-amount-input"
-        class="send-amount-input"
+        class="input-base"
         placeholder="amount"
         value="0.0001"
       />
     </div>
-    <button id="button-send">Send</button>
+    <button id="button-send-web">Send web</button>
+    <button id="button-send-qr">Send with QR</button>
+
+    <div>
+      <canvas id="qrcode"></canvas>
+    </div>
+
+    <div id="transaction-id-container" class="transaction-id-container"></div>
 
     <script src="src/index.js"></script>
   </body>
